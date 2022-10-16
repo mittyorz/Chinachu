@@ -100,7 +100,8 @@
 				}
 				args.push("-vf", `format=nv12|vaapi,hwupload,deinterlace_vaapi${scale}`);
 				args.push("-aspect", "16:9")
-			} else {
+			} else if (config.v4l2m2mEnabled !== true) {
+				// encoding speed drops below 1x when using yadif on RasPi 4B
 				args.push('-filter:v', 'yadif');
 			}
 
@@ -111,6 +112,10 @@
 					}
 					if (d['c:v'] === "h264") {
 						d['c:v'] = "h264_vaapi";
+					}
+				} else if (config.v4l2m2mEnabled === true) {
+					if (d['c:v'] === "h264") {
+						d['c:v'] = "h264_v4l2m2m";
 					}
 				}
 				args.push('-c:v', d['c:v']);
@@ -136,6 +141,9 @@
 			}
 
 			if (d['c:v'] === 'h264') {
+				// do not use these option with h264_v4l2m2m
+				//     -profile:v baseline causes `Unable to parse option value "baseline"`
+				//     -preset and -tune: "not been used for any stream"
 				args.push('-profile:v', 'baseline');
 				args.push('-preset', 'ultrafast');
 				args.push('-tune', 'fastdecode,zerolatency');
@@ -146,7 +154,12 @@
 			}
 
 			if (d.f === 'mp4') {
-				args.push('-movflags', 'frag_keyframe+empty_moov+faststart+default_base_moof');
+				if (config.v4l2m2mEnabled === true) {
+					// video disappears due to 'empty_moov' option (tested with VLC)
+					args.push('-movflags', 'frag_keyframe+faststart+default_base_moof');
+				} else {
+					args.push('-movflags', 'frag_keyframe+empty_moov+faststart+default_base_moof');
+				}
 			}
 
 			args.push('-y', '-f', d.f, 'pipe:1');
