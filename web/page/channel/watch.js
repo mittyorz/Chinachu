@@ -304,6 +304,10 @@ P = Class.create(P, {
 							{
 								label: '3Mbps',
 								value: '3M'
+							},
+							{
+								label: '5Mbps',
+								value: '5M'
 							}
 						]
 					},
@@ -330,6 +334,10 @@ P = Class.create(P, {
 							{
 								label: '192kbps',
 								value: '192k'
+							},
+							{
+								label: 'original AAC',
+								value: 'original'
 							}
 						]
 					},

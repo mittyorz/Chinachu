@@ -105,7 +105,14 @@ Usushio では使わない
 				}
 				args.push('-c:v', d['c:v']);
 			}
-			if (d['c:a']) args.push('-c:a', d['c:a']);
+			if (d['c:a']) {
+				if (d['b:a'] === 'original') {
+					// force to use original AAC stream
+					args.push('-c:a', 'copy');
+				} else {
+					args.push('-c:a', d['c:a']);
+				}
+			}
 
 			if (d.s) {
 				if (config.vaapiEnabled !== true) {
@@ -120,7 +127,12 @@ Usushio では使わない
 				args.push('-minrate:v', d['b:v'], '-maxrate:v', d['b:v']);
 			}
 			if (d['b:a']) {
-				args.push('-b:a', d['b:a'], '-minrate:a', d['b:a'], '-maxrate:a', d['b:a']);
+				if (d['b:a'] === 'original') {
+					// convert MPEG-2/4 AAC ADTS to an MPEG-4 Audio Specific Configuration bitstream
+					args.push('-bsf:a', 'aac_adtstoasc');
+				} else {
+					args.push('-b:a', d['b:a'], '-minrate:a', d['b:a'], '-maxrate:a', d['b:a']);
+				}
 			}
 
 			if (d['c:v'] === 'h264') {

@@ -224,7 +224,14 @@ function main(avinfo) {
 				}
 				args.push('-c:v', d['c:v']);
 			}
-			if (d['c:a']) args.push('-c:a', d['c:a']);
+			if (d['c:a']) {
+				if (d['b:a'] === 'original') {
+					// force to use original AAC stream
+					args.push('-c:a', 'copy');
+				} else {
+					args.push('-c:a', d['c:a']);
+				}
+			}
 
 			if (d.s) {
 				if (config.vaapiEnabled !== true) {
@@ -240,7 +247,12 @@ function main(avinfo) {
 				args.push('-bufsize:v', videoBitrate * 8);
 			}
 			if (d['b:a']) {
-				args.push('-b:a', d['b:a'], '-minrate:a', d['b:a'], '-maxrate:a', d['b:a']);
+				if (d['b:a'] === 'original') {
+					// convert MPEG-2/4 AAC ADTS to an MPEG-4 Audio Specific Configuration bitstream
+					args.push('-bsf:a', 'aac_adtstoasc');
+				} else {
+					args.push('-b:a', d['b:a'], '-minrate:a', d['b:a'], '-maxrate:a', d['b:a']);
+				}
 				args.push('-bufsize:a', audioBitrate * 8);
 			}
 
